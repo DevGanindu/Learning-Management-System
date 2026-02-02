@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { getGracePeriodExpiryDate } from "@/lib/utils";
 
 // GET: Fetch pending registrations
 export async function GET(request: NextRequest) {
@@ -70,8 +71,43 @@ export async function PATCH(request: NextRequest) {
             data: updateData,
             include: {
                 user: { select: { name: true } },
+                grade: { select: { monthlyFee: true } },
             },
         });
+
+        // If approved, create payment record for the current month
+        if (action === "APPROVED") {
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth() + 1;
+            const dueDate = getGracePeriodExpiryDate(currentYear, currentMonth);
+
+            // Check if payment record already exists (to avoid duplicates)
+            const existingPayment = await prisma.payment.findUnique({
+                where: {
+                    studentId_month_year: {
+                        studentId: studentId,
+                        month: currentMonth,
+                        year: currentYear,
+                    },
+                },
+            });
+
+            if (!existingPayment) {
+                // Use grade-specific monthly fee
+                const feeAmount = student.grade.monthlyFee;
+
+                await prisma.payment.create({
+                    data: {
+                        studentId: studentId,
+                        amount: feeAmount,
+                        month: currentMonth,
+                        year: currentYear,
+                        status: "UNPAID",
+                        dueDate: dueDate,
+                    },
+                });
+            }
+        }
 
         return NextResponse.json({
             success: true,

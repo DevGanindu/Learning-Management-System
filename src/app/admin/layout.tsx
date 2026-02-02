@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Navbar from "@/components/shared/Navbar";
 import Sidebar from "@/components/shared/Sidebar";
-import { LayoutDashboard, Users, DollarSign, UserPlus } from "@/components/shared/Icons";
+import { LayoutDashboard, Users, DollarSign, UserPlus, GraduationCap } from "@/components/shared/Icons";
 
 export default async function AdminLayout({
     children,
@@ -35,6 +35,11 @@ export default async function AdminLayout({
             href: "/admin/payments",
             label: "Payments",
             icon: DollarSign,
+        },
+        {
+            href: "/admin/fees",
+            label: "Class Fees",
+            icon: GraduationCap,
         },
     ];
 

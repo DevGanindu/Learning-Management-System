@@ -1,46 +1,45 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { getGracePeriodExpiryDate } from '../src/lib/utils';
 
 const prisma = new PrismaClient();
 
 async function main() {
     console.log('🌱 Starting database seed...');
 
-    // Create Grades
+    // Create Grades with different monthly fees
     const grades = await Promise.all([
         prisma.grade.upsert({
             where: { level: 6 },
             update: {},
-            create: { level: 6, name: 'Grade 6' },
+            create: { level: 6, name: 'Grade 6', monthlyFee: 4000 },
         }),
         prisma.grade.upsert({
             where: { level: 7 },
             update: {},
-            create: { level: 7, name: 'Grade 7' },
+            create: { level: 7, name: 'Grade 7', monthlyFee: 4500 },
         }),
         prisma.grade.upsert({
             where: { level: 8 },
             update: {},
-            create: { level: 8, name: 'Grade 8' },
+            create: { level: 8, name: 'Grade 8', monthlyFee: 5000 },
         }),
         prisma.grade.upsert({
             where: { level: 9 },
             update: {},
-            create: { level: 9, name: 'Grade 9' },
+            create: { level: 9, name: 'Grade 9', monthlyFee: 5500 },
         }),
         prisma.grade.upsert({
             where: { level: 10 },
             update: {},
-            create: { level: 10, name: 'Grade 10' },
+            create: { level: 10, name: 'Grade 10', monthlyFee: 6000 },
         }),
         prisma.grade.upsert({
             where: { level: 11 },
             update: {},
-            create: { level: 11, name: 'Grade 11' },
+            create: { level: 11, name: 'Grade 11', monthlyFee: 6500 },
         }),
     ]);
-    console.log('✅ Created grades');
+    console.log('✅ Created grades with monthly fees');
 
     // Create Admin
     const adminPassword = await bcrypt.hash('admin123', 10);
@@ -70,73 +69,8 @@ async function main() {
     });
     console.log('✅ Created teacher user (teacher@lms.com / teacher123)');
 
-    // Create Sample Students
-    const students = [];
-    const studentData = [
-        { name: 'Alice Student', email: 'alice@student.com', gradeLevel: 6 },
-        { name: 'Bob Student', email: 'bob@student.com', gradeLevel: 7 },
-        { name: 'Charlie Student', email: 'charlie@student.com', gradeLevel: 8 },
-        { name: 'Diana Student', email: 'diana@student.com', gradeLevel: 9 },
-        { name: 'Eve Student', email: 'eve@student.com', gradeLevel: 10 },
-        { name: 'Frank Student', email: 'frank@student.com', gradeLevel: 11 },
-    ];
-
-    for (const data of studentData) {
-        const password = await bcrypt.hash('student123', 10);
-        const grade = grades.find(g => g.level === data.gradeLevel);
-
-        if (!grade) continue;
-
-        const user = await prisma.user.upsert({
-            where: { email: data.email },
-            update: {},
-            create: {
-                email: data.email,
-                password: password,
-                name: data.name,
-                role: 'STUDENT',
-            },
-        });
-
-        const student = await prisma.student.upsert({
-            where: { userId: user.id },
-            update: {},
-            create: {
-                userId: user.id,
-                gradeId: grade.id,
-                isActive: true,
-                lockedDueToPayment: false,
-            },
-        });
-
-        students.push(student);
-
-        // Create payment records for current month
-        const currentYear = new Date().getFullYear();
-        const currentMonth = new Date().getMonth() + 1;
-        const dueDate = getGracePeriodExpiryDate(currentYear, currentMonth);
-
-        await prisma.payment.upsert({
-            where: {
-                studentId_month_year: {
-                    studentId: student.id,
-                    month: currentMonth,
-                    year: currentYear,
-                },
-            },
-            update: {},
-            create: {
-                studentId: student.id,
-                amount: 5000, // Example fee amount
-                month: currentMonth,
-                year: currentYear,
-                status: 'PAID', // Set as paid so students can access
-                paidDate: new Date(),
-                dueDate: dueDate,
-            },
-        });
-    }
-    console.log(`✅ Created ${students.length} student users (password: student123)`);
+    // Note: No demo students are created
+    // Students must register through the registration page and be approved by admin
 
     // Create Sample Materials
     const sampleMaterials = [
@@ -206,7 +140,7 @@ async function main() {
     console.log('\n📝 Login credentials:');
     console.log('   Admin: admin@lms.com / admin123');
     console.log('   Teacher: teacher@lms.com / teacher123');
-    console.log('   Students: alice@student.com / student123 (and others)');
+    console.log('\n📝 Note: Students must register and be approved by admin to login');
 }
 
 main()

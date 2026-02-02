@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { Users, DollarSign, CheckCircle, XCircle, UserPlus } from "lucide-react";
+import { Users, DollarSign, CheckCircle, XCircle, UserPlus, GraduationCap } from "lucide-react";
 
 export default async function AdminDashboard() {
     const session = await auth();
@@ -92,7 +92,7 @@ export default async function AdminDashboard() {
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
                     Quick Actions
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <a
                         href="/admin/students"
                         className="flex items-center gap-3 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary hover:bg-blue-50 transition-all group"
@@ -118,6 +118,15 @@ export default async function AdminDashboard() {
                         <DollarSign className="w-5 h-5 text-gray-400 group-hover:text-purple-500" />
                         <span className="font-medium text-gray-700 group-hover:text-purple-500">
                             Manage Payments
+                        </span>
+                    </a>
+                    <a
+                        href="/admin/fees"
+                        className="flex items-center gap-3 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all group"
+                    >
+                        <GraduationCap className="w-5 h-5 text-gray-400 group-hover:text-orange-500" />
+                        <span className="font-medium text-gray-700 group-hover:text-orange-500">
+                            Class Fees
                         </span>
                     </a>
                 </div>

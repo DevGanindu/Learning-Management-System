@@ -36,9 +36,8 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 |------|-------|----------|
 | **Admin** | admin@lms.com | admin123 |
 | **Teacher** | teacher@lms.com | teacher123 |
-| **Student** | alice@student.com | student123 |
 
-> More student accounts available (bob, charlie, diana, eve, frank @student.com)
+> **Note:** Students must register through the registration page and be approved by an admin before they can login.
 
 ## ✨ Key Features
 

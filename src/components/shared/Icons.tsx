@@ -16,6 +16,7 @@ export {
     Home,
     Search,
     Video,
-    UserPlus
+    UserPlus,
+    GraduationCap
 } from "lucide-react";
 

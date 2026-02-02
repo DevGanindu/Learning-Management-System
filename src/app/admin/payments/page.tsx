@@ -32,8 +32,6 @@ const MONTHS = [
     "July", "August", "September", "October", "November", "December"
 ];
 
-const DEFAULT_AMOUNT = 5000; // Default payment amount
-
 export default function PaymentsPage() {
     const [payments, setPayments] = useState<Payment[]>([]);
     const [grades, setGrades] = useState<Grade[]>([]);
@@ -58,7 +56,7 @@ export default function PaymentsPage() {
             .catch(console.error);
     }, []);
 
-    // Function to generate payments for all approved students
+    // Function to generate payments for all approved students (uses grade-specific fees)
     const generatePayments = async () => {
         setGenerating(true);
         setMessage(null);
@@ -69,7 +67,6 @@ export default function PaymentsPage() {
                 body: JSON.stringify({
                     month: selectedMonth,
                     year: selectedYear,
-                    amount: DEFAULT_AMOUNT,
                 }),
             });
 
@@ -338,7 +335,7 @@ export default function PaymentsPage() {
                 <div className="overflow-x-auto">
                     {isLoading ? (
                         <div className="p-8 text-center text-gray-500">Loading payments...</div>
-                    ) : payments.length === 0 ? (
+                    ) : filteredPayments.length === 0 ? (
                         <div className="p-8 text-center text-gray-500">
                             <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                             <p>No payment records found for this period</p>
@@ -371,7 +368,7 @@ export default function PaymentsPage() {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {payments.map((payment) => (
+                                {filteredPayments.map((payment) => (
                                     <tr key={payment.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div>

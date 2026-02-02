@@ -11,13 +11,14 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { month, year, amount } = body;
+        const { month, year } = body;
 
-        if (!month || !year || !amount) {
-            return NextResponse.json({ error: "Month, year, and amount are required" }, { status: 400 });
+        if (!month || !year) {
+            return NextResponse.json({ error: "Month and year are required" }, { status: 400 });
         }
 
         // Find all approved students who don't have a payment record for this month/year
+        // Include their grade to get the grade-specific fee
         const approvedStudents = await prisma.student.findMany({
             where: {
                 approvalStatus: "APPROVED",
@@ -28,7 +29,12 @@ export async function POST(request: NextRequest) {
                     },
                 },
             },
-            select: { id: true },
+            select: {
+                id: true,
+                grade: {
+                    select: { monthlyFee: true }
+                }
+            },
         });
 
         if (approvedStudents.length === 0) {
@@ -38,24 +44,28 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        // Create payment records for all these students
+        // Create payment records for all these students with their grade-specific fees
         const dueDate = new Date(year, month - 1, 15); // Due on 15th of the month
 
-        const payments = await prisma.payment.createMany({
-            data: approvedStudents.map(student => ({
-                studentId: student.id,
-                amount: amount,
-                month: month,
-                year: year,
-                dueDate: dueDate,
-                status: "UNPAID",
-            })),
-        });
+        let createdCount = 0;
+        for (const student of approvedStudents) {
+            await prisma.payment.create({
+                data: {
+                    studentId: student.id,
+                    amount: student.grade.monthlyFee,
+                    month: month,
+                    year: year,
+                    dueDate: dueDate,
+                    status: "UNPAID",
+                },
+            });
+            createdCount++;
+        }
 
         return NextResponse.json({
             success: true,
-            message: `Created ${payments.count} payment records`,
-            created: payments.count,
+            message: `Created ${createdCount} payment records with grade-specific fees`,
+            created: createdCount,
         });
     } catch (error) {
         console.error("Error creating batch payments:", error);
