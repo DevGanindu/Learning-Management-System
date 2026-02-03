@@ -1,58 +1,27 @@
-import { auth } from "@/lib/auth"
-import { NextResponse } from "next/server"
+/**
+ * Lightweight Middleware for Vercel Edge Runtime
+ * 
+ * This middleware is optimized for Edge Runtime by:
+ * - NOT importing Prisma (database operations)
+ * - NOT importing bcrypt (password hashing)
+ * - NOT importing Supabase client
+ * 
+ * All heavy operations are handled in API routes with `runtime: 'nodejs'`
+ * 
+ * Size: ~50KB (well under Vercel's 1MB Edge Function limit)
+ */
 
-export default auth(async (req) => {
-    const session = req.auth;
-    const { pathname } = req.nextUrl;
+import NextAuth from "next-auth";
+import { authConfig } from "@/lib/auth.config";
 
-    // Public routes - accessible without authentication
-    const publicRoutes = ['/login', '/register', '/'];
-    if (publicRoutes.includes(pathname)) {
-        // If logged in, redirect to appropriate dashboard (except for register)
-        if (session?.user && pathname !== '/register') {
-            const redirectMap = {
-                ADMIN: '/admin',
-                TEACHER: '/teacher',
-                STUDENT: '/student',
-            };
-            return NextResponse.redirect(
-                new URL(redirectMap[session.user.role], req.url)
-            );
-        }
-        return NextResponse.next();
-    }
+// Create a lightweight auth instance using only the config (no providers with Prisma)
+const { auth } = NextAuth(authConfig);
 
-    // Protected routes - require authentication
-    if (!session?.user) {
-        return NextResponse.redirect(new URL('/login', req.url));
-    }
-
-    const { role } = session.user;
-
-    // Role-based route protection
-    // Teachers now have admin privileges and can access both /teacher and /admin routes
-    const roleAllowedPaths: Record<string, string[]> = {
-        ADMIN: ['/admin'],
-        TEACHER: ['/teacher', '/admin'],  // Teachers can access admin routes
-        STUDENT: ['/student'],
-    };
-
-    const allowedPaths = roleAllowedPaths[role] || [];
-
-    // Check if user is accessing their allowed paths
-    const isAllowedPath = allowedPaths.some(path => pathname.startsWith(path));
-    
-    if (!isAllowedPath) {
-        // Redirect to primary dashboard
-        const primaryPath = allowedPaths[0] || '/login';
-        return NextResponse.redirect(new URL(primaryPath, req.url));
-    }
-
-    return NextResponse.next();
-});
+export default auth;
 
 export const config = {
+    // Match all routes except static files, images, and API routes
     matcher: [
-        '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
+        "/((?!api|_next/static|_next/image|favicon.ico|public|.*\\..*$).*)",
     ],
 };

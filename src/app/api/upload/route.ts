@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { uploadDocument, StorageError } from "@/lib/storage";
 
+// Force Node.js runtime - required for Supabase storage operations
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
     try {
         const session = await auth();

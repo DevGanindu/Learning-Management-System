@@ -1,10 +1,19 @@
+/**
+ * NextAuth.js Full Configuration (Server-side only)
+ * 
+ * This file contains the full auth setup with Prisma and bcrypt.
+ * Only imported in server components and API routes - NOT in middleware.
+ */
+
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import prisma from "@/lib/prisma"
 import { loginSchema } from "@/lib/validations"
+import { authConfig } from "./auth.config"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+    ...authConfig,
     providers: [
         CredentialsProvider({
             name: "Credentials",
@@ -119,31 +128,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
         })
     ],
-    callbacks: {
-        async jwt({ token, user }) {
-            if (user && user.id) {
-                token.id = user.id;
-                token.role = user.role;
-                token.studentId = user.studentId;
-                token.gradeId = user.gradeId;
-            }
-            return token;
-        },
-        async session({ session, token }) {
-            if (token && session.user) {
-                session.user.id = token.id;
-                session.user.role = token.role;
-                session.user.studentId = token.studentId;
-                session.user.gradeId = token.gradeId;
-            }
-            return session;
-        },
-    },
-    pages: {
-        signIn: '/login',
-    },
-    session: {
-        strategy: "jwt",
-    },
-    secret: process.env.NEXTAUTH_SECRET || "default-secret-change-in-production",
 });
