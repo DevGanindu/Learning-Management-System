@@ -4,7 +4,16 @@ const nextConfig: NextConfig = {
     /* config options here */
     reactStrictMode: true,
     images: {
-        domains: ['localhost'],
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: '**.supabase.co',
+            },
+            {
+                protocol: 'http',
+                hostname: 'localhost',
+            },
+        ],
     },
 };
 
