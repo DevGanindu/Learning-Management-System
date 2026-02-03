@@ -56,3 +56,17 @@ export const sendRegistrationEmail = async (email: string, studentId: string, na
         return false;
     }
 };
+
+// Lightweight test email helper for diagnostics
+export const sendTestEmail = async (to: string) => {
+    const mailOptions = {
+        from: process.env.SMTP_FROM || `"NextLMS Support" <${process.env.SMTP_USER}>`,
+        to,
+        subject: "Test Email",
+        text: "Hello from NextLMS!",
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Test email sent:", info.messageId);
+    return true;
+};
