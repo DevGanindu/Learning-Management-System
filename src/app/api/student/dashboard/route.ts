@@ -39,10 +39,19 @@ export async function GET() {
             where: { gradeId: student?.gradeId },
         });
 
+        // Get online classes count for this grade
+        const classesCount = await prisma.material.count({
+            where: { 
+                gradeId: student?.gradeId,
+                type: "ONLINE_CLASS"
+            },
+        });
+
         return NextResponse.json({
             student,
             user,
             materialsCount,
+            classesCount,
         });
     } catch (error) {
         console.error("Error fetching dashboard data:", error);

@@ -43,7 +43,7 @@ export default async function StudentLayout({
             <Navbar userName={session.user.name || "Student"} role="Student" links={sidebarLinks} />
             <div className="flex">
                 <Sidebar links={sidebarLinks} />
-                <main className="flex-1 p-4 md:p-8">{children}</main>
+                <main className="flex-1 p-4 md:p-8 pb-20 md:pb-8">{children}</main>
             </div>
         </div>
     );

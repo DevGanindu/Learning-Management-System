@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Navbar from "@/components/shared/Navbar";
 import Sidebar from "@/components/shared/Sidebar";
-import { LayoutDashboard, FileText, Video, Users } from "@/components/shared/Icons";
+import { LayoutDashboard, FileText, Video, Users, Settings, DollarSign, UserPlus, GraduationCap } from "@/components/shared/Icons";
 
 export default async function TeacherLayout({
     children,
@@ -35,6 +35,27 @@ export default async function TeacherLayout({
             href: "/teacher/classes",
             label: "Online Classes",
             icon: Video,
+        },
+        // Admin section - Teachers have admin privileges
+        {
+            href: "/admin",
+            label: "Admin Panel",
+            icon: Settings,
+        },
+        {
+            href: "/admin/registrations",
+            label: "Registrations",
+            icon: UserPlus,
+        },
+        {
+            href: "/admin/payments",
+            label: "Payments",
+            icon: DollarSign,
+        },
+        {
+            href: "/admin/fees",
+            label: "Class Fees",
+            icon: GraduationCap,
         },
     ];
 

@@ -30,17 +30,22 @@ export default auth(async (req) => {
     const { role } = session.user;
 
     // Role-based route protection
-    const roleRouteMap = {
-        ADMIN: '/admin',
-        TEACHER: '/teacher',
-        STUDENT: '/student',
+    // Teachers now have admin privileges and can access both /teacher and /admin routes
+    const roleAllowedPaths: Record<string, string[]> = {
+        ADMIN: ['/admin'],
+        TEACHER: ['/teacher', '/admin'],  // Teachers can access admin routes
+        STUDENT: ['/student'],
     };
 
-    const allowedBasePath = roleRouteMap[role];
+    const allowedPaths = roleAllowedPaths[role] || [];
 
-    // Check if user is accessing their allowed path
-    if (!pathname.startsWith(allowedBasePath)) {
-        return NextResponse.redirect(new URL(allowedBasePath, req.url));
+    // Check if user is accessing their allowed paths
+    const isAllowedPath = allowedPaths.some(path => pathname.startsWith(path));
+    
+    if (!isAllowedPath) {
+        // Redirect to primary dashboard
+        const primaryPath = allowedPaths[0] || '/login';
+        return NextResponse.redirect(new URL(primaryPath, req.url));
     }
 
     return NextResponse.next();

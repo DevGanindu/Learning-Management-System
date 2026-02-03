@@ -9,7 +9,7 @@ export async function DELETE(
 ) {
     try {
         const session = await auth();
-        if (!session?.user || session.user.role !== "ADMIN") {
+        if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "TEACHER")) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
