@@ -12,10 +12,17 @@ const smtpOptions = {
 
 const transporter = nodemailer.createTransport(smtpOptions);
 
+// Helper to construct the "from" address
+const getFromAddress = () => {
+    const name = process.env.EMAIL_FROM_NAME || "NextLMS Support";
+    const addr = process.env.EMAIL_FROM_ADDR || process.env.SMTP_USER;
+    return `"${name}" <${addr}>`;
+};
+
 export const sendRegistrationEmail = async (email: string, studentId: string, name: string) => {
     try {
         const mailOptions = {
-            from: process.env.SMTP_FROM || `"NextLMS Support" <${process.env.SMTP_USER}>`,
+            from: getFromAddress(),
             to: email,
             subject: "Registration Successful - NextLMS",
             html: `
@@ -60,7 +67,7 @@ export const sendRegistrationEmail = async (email: string, studentId: string, na
 // Lightweight test email helper for diagnostics
 export const sendTestEmail = async (to: string) => {
     const mailOptions = {
-        from: process.env.SMTP_FROM || `"NextLMS Support" <${process.env.SMTP_USER}>`,
+        from: getFromAddress(),
         to,
         subject: "Test Email",
         text: "Hello from NextLMS!",
